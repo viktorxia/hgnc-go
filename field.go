@@ -71,6 +71,14 @@ var indexedFields = []Field{
 	FIELD_OMIM_ID,
 }
 
+func GetAllIndexedFieldNames() []string {
+	result := make([]string, len(indexedFields))
+	for i, f := range indexedFields {
+		result[i] = string(f)
+	}
+	return result
+}
+
 var fieldDesc = map[Field]string{
 	FIELD_HGNC_ID:                  "HGNC ID. A unique ID created by the HGNC for every approved symbol.",
 	FIELD_SYMBOL:                   "The HGNC approved gene symbol. Equates to the \"APPROVED SYMBOL\" field within the gene symbol report.",
