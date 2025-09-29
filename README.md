@@ -188,10 +188,16 @@ symbols := db.Lookup("7157", hgnc.FIELD_ENTREZ_ID, hgnc.FIELD_SYMBOL)
 
 **Indexed fields are 1,000-10,000x faster** than non-indexed fields!
 
-| Field Type      | Lookup Time | Operations/sec | Algorithm        |
-| --------------- | ----------- | -------------- | ---------------- |
-| **Indexed**     | ~0ns        | >1M            | O(1) hash lookup |
-| **Non-indexed** | ~2-8s       | ~400-1K        | O(n) linear scan |
+Lookup time comparison in `example/cache_vs_nocache.go`
+
+| Cached | Operations | Goroutines | Time     | Operations/sec |
+| ------ | ---------- | ---------- | -------- | -------------- |
+| Y      | 1000       | 1          | 443.61µs | 2,254,217      |
+| N      | 1000       | 1          | 5.078s   | 197            |
+| Y      | 5000       | 2          | 2.80ms   | 1,786,357      |
+| Y      | 5000       | 2          | 13.075s  | 382            |
+| N      | 10000      | 4          | 1.99ms   | 5,020,763      |
+| N      | 10000      | 4          | 14.412s  | 694            |
 
 Indexed Fields (Fast)
 
