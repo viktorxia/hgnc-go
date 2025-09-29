@@ -33,22 +33,22 @@ import (
     "fmt"
     "log"
     
-    hgnc "github.com/viktorxia/hgnc-go"
+    h "github.com/viktorxia/hgnc-go"
 )
 
 func main() {
     // Load HGNC database
-    db, err := hgnc.LoadTsv("data/hgnc_complete_set.txt.gz", true)
+    hgnc, err := h.LoadTsv("data/hgnc_complete_set.txt.gz", true)
     if err != nil {
         log.Fatal(err)
     }
     
     // Check if gene is protein-coding
-    isCoding := db.IsCodingGene("BRCA1")
+    isCoding := hgnc.IsCodingGene("BRCA1")
     fmt.Printf("BRCA1 is coding gene: %v\n", isCoding)
     
     // Convert gene symbol to Entrez ID
-    if entrezID, ok := db.SymbolToEntrezID("TP53"); ok {
+    if entrezID, ok := hgnc.SymbolToEntrezID("TP53"); ok {
         fmt.Printf("TP53 Entrez ID: %s\n", entrezID)
     }
 }
@@ -76,9 +76,9 @@ The library automatically detects and handles multiple gene ID formats. You can 
 
 ```go
 // Check if gene is protein-coding
-isCoding := db.IsCodingGene("BRCA1")        // Accepts multiple ID formats
-isCoding := db.IsCodingGene("HGNC:1100")    // Same result
-isCoding := db.IsCodingGene("672")          // Same result (Entrez ID)
+isCoding := hgnc.IsCodingGene("BRCA1")        // Accepts multiple ID formats
+isCoding := hgnc.IsCodingGene("HGNC:1100")    // Same result
+isCoding := hgnc.IsCodingGene("672")          // Same result (Entrez ID)
 ```
 
 
@@ -94,14 +94,14 @@ hgnc-go support convertion between the following systems:
 
 ```go
 // Symbol conversions
-entrezID, ok := db.SymbolToEntrezID("BRCA1")  // Symbol -> Entrez ID
-ensg, ok := db.SymbolToEnsg("TP53")           // Symbol -> Ensembl Gene ID
-ucscID, ok := db.SymbolToUcscID("EGFR")       // Symbol -> UCSC ID
+entrezID, ok := hgnc.SymbolToEntrezID("BRCA1")  // Symbol -> Entrez ID
+ensg, ok := hgnc.SymbolToEnsg("TP53")           // Symbol -> Ensembl Gene ID
+ucscID, ok := hgnc.SymbolToUcscID("EGFR")       // Symbol -> UCSC ID
 
 // To Symbol conversions
-symbol, ok := db.EntrezIDToSymbol("7157")     // Entrez ID -> Symbol
-symbol, ok := db.EnsgToSymbol("ENSG00000141510")  // Ensembl ID -> Symbol
-symbol, ok := db.UcscIDToSymbol("uc002ict.4")     // UCSC ID -> Symbol
+symbol, ok := hgnc.EntrezIDToSymbol("7157")     // Entrez ID -> Symbol
+symbol, ok := hgnc.EnsgToSymbol("ENSG00000141510")  // Ensembl ID -> Symbol
+symbol, ok := hgnc.UcscIDToSymbol("uc002ict.4")     // UCSC ID -> Symbol
 ```
 
 
@@ -110,13 +110,13 @@ symbol, ok := db.UcscIDToSymbol("uc002ict.4")     // UCSC ID -> Symbol
 
 ```go
 // Get complete MANE Select info (ENST|RefSeq format)
-mane, ok := db.GetManeSelect("EGFR")
+mane, ok := hgnc.GetManeSelect("EGFR")
 
 // Get only ENST transcript ID
-enst, ok := db.GetManeSelectENST("EGFR") 
+enst, ok := hgnc.GetManeSelectENST("EGFR") 
 
 // Get only RefSeq transcript ID
-refseq, ok := db.GetManeSelectRefseq("EGFR")
+refseq, ok := hgnc.GetManeSelectRefseq("EGFR")
 ```
 
 
@@ -125,7 +125,7 @@ refseq, ok := db.GetManeSelectRefseq("EGFR")
 
 ```go
 // Get RefSeq accessions for a gene
-refseqAccs, ok := db.GeneRefseqAccs("BRCA1")  // Accepts multiple ID formats
+refseqAccs, ok := hgnc.GeneRefseqAccs("BRCA1")  // Accepts multiple ID formats
 ```
 
 
@@ -157,7 +157,7 @@ Returns complete gene records (`[]*Records`) matching the query:
 
 ```go
 // Find all records where symbol equals "BRCA1"
-records := db.Fetch("BRCA1", hgnc.FIELD_SYMBOL)
+records := hgnc.Fetch("BRCA1", h.FIELD_SYMBOL)
 
 for _, record := range records {
     fmt.Printf("HGNC ID: %s\n", record.HgncID())
@@ -173,13 +173,13 @@ Returns specific field values (`[]string`) for matching records:
 
 ```go
 // Find records where symbol="BRCA1", then return their Entrez IDs
-entrezIDs := db.Lookup("BRCA1", hgnc.FIELD_SYMBOL, hgnc.FIELD_ENTREZ_ID)
+entrezIDs := hgnc.Lookup("BRCA1", h.FIELD_SYMBOL, h.FIELD_ENTREZ_ID)
 
 // Find records where symbol="TP53", then return their aliases
-aliases := db.Lookup("TP53", hgnc.FIELD_SYMBOL, hgnc.FIELD_ALIAS_SYMBOL)
+aliases := hgnc.Lookup("TP53", h.FIELD_SYMBOL, h.FIELD_ALIAS_SYMBOL)
 
 // Find records where Entrez ID="7157", then return their symbols
-symbols := db.Lookup("7157", hgnc.FIELD_ENTREZ_ID, hgnc.FIELD_SYMBOL)
+symbols := hgnc.Lookup("7157", h.FIELD_ENTREZ_ID, h.FIELD_SYMBOL)
 ```
 
 
@@ -245,7 +245,7 @@ gene := hgnc.Fetch("breast cancer 1", h.FIELD_NAME)
 // High-level APIs handle multiple formats automatically
 genes := []string{"TP53", "BRCA1", "7157", "HGNC:11998", "ENSG00000141510"}
 for _, gene := range genes {
-    isCoding := db.IsCodingGene(gene)
+    isCoding := hgnc.IsCodingGene(gene)
     fmt.Printf("%s is coding gene: %v\n", gene, isCoding)
 }
 ```
@@ -256,14 +256,14 @@ for _, gene := range genes {
 
 ```go
 gene := "BRCA1"
-if mane, ok := db.GetManeSelect(gene); ok {
+if mane, ok := hgnc.GetManeSelect(gene); ok {
     fmt.Printf("Full MANE: %s\n", mane)  // e.g., "ENST00000357654.9|NM_007294.4"
     
-    if enst, ok := db.GetManeSelectENST(gene); ok {
+    if enst, ok := hgnc.GetManeSelectENST(gene); ok {
         fmt.Printf("ENST: %s\n", enst)   // e.g., "ENST00000357654.9"
     }
     
-    if refseq, ok := db.GetManeSelectRefseq(gene); ok {
+    if refseq, ok := hgnc.GetManeSelectRefseq(gene); ok {
         fmt.Printf("RefSeq: %s\n", refseq)  // e.g., "NM_007294.4"
     }
 }
@@ -275,16 +275,16 @@ if mane, ok := db.GetManeSelect(gene); ok {
 
 ```go
 // Find all protein-coding genes on chromosome 17
-records := db.Fetch("protein-coding gene", hgnc.FIELD_LOCUS_GROUP)
+records := hgnc.Fetch("protein-coding gene", h.FIELD_LOCUS_GROUP)
 for _, record := range records {
-    if strings.Contains(record.Get(hgnc.FIELD_LOCATION), "17q") {
+    if strings.Contains(record.Get(h.FIELD_LOCATION), "17q") {
         fmt.Printf("Gene: %s, Location: %s\n", 
-            record.Symbol(), record.Get(hgnc.FIELD_LOCATION))
+            record.Symbol(), record.Get(h.FIELD_LOCATION))
     }
 }
 
 // Get all Ensembl IDs for genes with "BRCA" in their symbol
-symbols := db.Lookup("BRCA1", hgnc.FIELD_SYMBOL, hgnc.FIELD_ENSEMBL_GENE_ID)
+symbols := hgnc.Lookup("BRCA1", h.FIELD_SYMBOL, h.FIELD_ENSEMBL_GENE_ID)
 fmt.Printf("Ensembl IDs: %v\n", symbols)
 ```
 
