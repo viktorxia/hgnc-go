@@ -136,10 +136,10 @@ The library automatically converts aliases and previous symbols of genes to the 
 
 ```go
 // Enable auto-normalization (default)
-db.SetAutoNormSymbol(true)
+hgnc.SetAutoNormSymbol(true)
 
 // Disable auto-normalization
-db.SetAutoNormSymbol(false)
+hgnc.SetAutoNormSymbol(false)
 ```
 
 
