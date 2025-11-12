@@ -66,12 +66,17 @@ func LoadTsv(filepath string, gzipped bool) (*HGNC, error) {
 
 	// read header line
 	if !scanner.Scan() {
+		if serr := scanner.Err(); serr != nil {
+			return nil, serr
+		}
 		return nil, errors.New("failed reading header line")
 	}
 	headerLine := scanner.Text()
 	headerMap := make(map[string]int)
 	for i, field := range strings.Split(headerLine, "\t") {
-		headerMap[field] = i
+		f := strings.TrimSpace(field)
+		f = strings.Trim(f, "\"")
+		headerMap[f] = i
 	}
 
 	// collect data
@@ -84,24 +89,27 @@ func LoadTsv(filepath string, gzipped bool) (*HGNC, error) {
 		h.records = append(h.records, record)
 
 		// standard symbols
-		h.stdHgncSymbols[record.data[FIELD_SYMBOL]] = struct{}{}
+		sym := strings.TrimSpace(record.data[FIELD_SYMBOL])
+		if sym != "" {
+			h.stdHgncSymbols[sym] = struct{}{}
+		}
 
 		// alias & prev symbols
 		aliasSymbolStr := record.data[FIELD_ALIAS_SYMBOL]
 		prevSymbolStr := record.data[FIELD_PREV_SYMBOL]
-		if aliasSymbolStr != "" {
+		if sym != "" && aliasSymbolStr != "" {
 			for _, alias := range strings.Split(aliasSymbolStr, "|") {
 				alias = strings.TrimSpace(alias)
 				if alias != "" {
-					h.geneSymbolMap[alias] = record.data[FIELD_SYMBOL]
+					h.geneSymbolMap[alias] = sym
 				}
 			}
 		}
-		if prevSymbolStr != "" {
+		if sym != "" && prevSymbolStr != "" {
 			for _, prevSymbol := range strings.Split(prevSymbolStr, "|") {
 				prevSymbol = strings.TrimSpace(prevSymbol)
 				if prevSymbol != "" {
-					h.geneSymbolMap[prevSymbol] = record.data[FIELD_SYMBOL]
+					h.geneSymbolMap[prevSymbol] = sym
 				}
 			}
 		}

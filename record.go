@@ -12,7 +12,11 @@ type Record struct {
 
 // ToMap returns the internal map representation of the Record.
 func (r *Record) ToMap() map[Field]string {
-	return r.data
+	copyMap := make(map[Field]string, len(r.data))
+	for k, v := range r.data {
+		copyMap[k] = v
+	}
+	return copyMap
 }
 
 // ToStrMap returns the internal map representation of the Record, with Field keys
